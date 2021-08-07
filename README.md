@@ -60,7 +60,7 @@ GET http://localhost:8080
 ### Evento: 'room'
 Este listener recebe os eventos que acontecem em uma sala.
 ```json
-// Response:
+Response:
     {
         "id": "string",
         "player1": {
@@ -90,7 +90,7 @@ Para este evento os status possíveis são:
 ### Evento: 'game-error'
 Neste evento todos os erros que acontecerem serão reportados para o usuário logado.
 ```json
-// Response:
+Response:
     {
         "error": "string"
     }
@@ -111,12 +111,13 @@ Lembrando que para dados inválidos/erros que acontecerem a partir de um evento 
 Neste evento o usuário poderá entrar em uma sala existente ou não.
 
 ```json
-// Body:
+Body:
 {
     "username": "string",
-    "room": "string?" /* A '?' indica que o atributo não é obrigatório. */
+    "room": "string?"
 }
 
+room: A '?' indica que o atributo não é obrigatório.
 Response:
     Evento: 'room'
 ```
@@ -125,10 +126,12 @@ Neste evento o jogador envia os dados de sua jogada.
 ```json
 Body:
 {
-    "x": Integer, /* Valor representa as LINHAS e precisa estar entre 0 e 2 */
-    "y": Integer /* Valor representa as COLUNAS e precisa estar entre 0 e 2 */
+    "x": 0,
+    "y": 0
 }
 
+x: Valor representa as LINHAS e precisa estar entre 0 e 2
+y: Valor representa as COLUNAS e precisa estar entre 0 e 2
 Response:
     Evento: 'room'
 ```
@@ -138,7 +141,7 @@ Este evento inicia uma votação para reiniciar o jogo.
 ```json
 Body:
 {
-    "wantTo": Boolean
+    "wantTo": true
 }
 
 Response:
