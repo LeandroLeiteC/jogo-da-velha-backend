@@ -78,9 +78,17 @@ export default class Room {
       this.resetBoard();
       this.status = RoomStatus.RUNNING;
       this.winner = undefined;
+      this.resetVotes();
+    }
+
+    resetVotes () {
       this.restartVote = {
         player1: undefined,
         player2: undefined
       };
+    }
+
+    isEmpty () {
+      return this.player1 == undefined && this.player2 == undefined;
     }
 }

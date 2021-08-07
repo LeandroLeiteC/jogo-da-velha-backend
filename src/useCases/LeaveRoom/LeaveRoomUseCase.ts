@@ -10,7 +10,14 @@ class LeaveRoomUseCase {
         }
 
         room.leave(socketId);
-        return roomRepository.save(room);
+
+        if (room.isEmpty()) {
+            roomRepository.remove(room.id);
+            return room;
+        } else {
+            return roomRepository.save(room);
+        }
+        
     }
 }
 

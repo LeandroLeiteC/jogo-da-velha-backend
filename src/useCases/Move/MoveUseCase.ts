@@ -22,7 +22,12 @@ class MoveUseCase {
             throw new Error(ErrorEnum.NOT_YOUR_TURN);
         }
         
-        room.board[move.x][move.y] = socketId;
+        try {
+            room.board[move.x][move.y] = socketId;
+        } catch(err) {
+            throw new Error(ErrorEnum.INVALID_MOVE);
+        }
+        
 
         if (this.win(room.board)) {
             room.winner = socketId;

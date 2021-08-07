@@ -58,7 +58,7 @@ class App {
               this.io.to(room.id).emit('room', {...room});
             })
             .catch (err => {
-              socket.emit('app-error', {error: err.message});
+              socket.emit('game-error', {error: err.message});
             });
         }
       });
@@ -68,24 +68,26 @@ class App {
           .then(room => {
             this.io.sockets.to(room.id).emit('room', {...room});
           }).catch(err => {
-            socket.emit('app-error', {error: err.message});
+            socket.emit('game-error', {error: err.message});
           });
       });
 
-      socket.on('restart', () => {
-        restartRoomUseCase.execute(socket['room'], socket.id)
+      socket.on('restart', (data: {wantTo: Boolean}) => {
+        restartRoomUseCase.execute(socket['room'], socket.id, data.wantTo)
           .then(room => {
             this.io.sockets.to(room.id).emit('room', {...room});
           }).catch(err => {
-            socket.emit('app-error', {error: err.message});
-          })
+            socket.emit('game-error', {error: err.message});
+          });
       });
 
       socket.on('leave', () => {
         leaveRoomUseCase.execute(socket['room'], socket.id)
           .then(room => {
             socket.leave(room.id);
-            socket.to(room.id).emit('room', {...room});
+            if (!room.isEmpty) {
+              socket.to(room.id).emit('room', {...room});
+            }
           });
       });
 
