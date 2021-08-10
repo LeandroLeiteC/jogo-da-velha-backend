@@ -1,3 +1,6 @@
 import app from './app'
 
-app.server.listen(8080, () => console.log('>>> Server running in 8080'))
+const port = process.env.PORT || 8080;
+app.server.listen(port, () => {
+  console.log('Express server listening on port', port)
+});
