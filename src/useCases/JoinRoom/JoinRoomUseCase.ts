@@ -6,8 +6,13 @@ import roomRepository from '../../repositories/RoomRepository'
 
 class JoinRoomUseCase {
   async execute (roomId: string, socketId: string, username: string): Promise<Room> {
+
+    if (username === undefined || username.length > 15) {
+      throw new Error(ErrorEnum.INVALID_USERNAME);
+    }
+
     let room = roomRepository.getById(roomId);
-    if (room == undefined || !room.isPlayer(socketId)) {
+    if (room === undefined || !room.isPlayer(socketId)) {
       throw new Error(ErrorEnum.ROOM_NOT_FOUND);
     }
 

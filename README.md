@@ -102,6 +102,7 @@ para o evento de app-error os resultados possíveis são:
    - INVALID_MOVE - Quando o usuário faz um movimento inválido.
    - NOT_YOUR_TURN - Quando o usuário faz um movimento quando não é sua vez.
    - GAME_NOT_RUNNNING - Quando o usuário faz um movimento em uma sala que não possue uma partida em andamento.
+   - INVALID_USERNAME - Quando o username está vazio ou é maior que 15 caractéres.
 
 ## Eventos emitidos pelo cliente
 Todos os eventos que o cliente pode emitir.
