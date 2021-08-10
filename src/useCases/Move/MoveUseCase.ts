@@ -6,7 +6,7 @@ import roomRepository from '../../repositories/RoomRepository'
 class MoveUseCase {
     async execute (roomId: string, socketId: string, move: {x: number, y: number}): Promise<Room> {
         let room = roomRepository.getById(roomId);
-        if (room == undefined || !room.isPlayer(socketId)) {
+        if (room == undefined || !room.isPlayerConnected(socketId)) {
             throw new Error(ErrorEnum.ROOM_NOT_FOUND);
         }
 

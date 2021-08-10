@@ -42,7 +42,10 @@ class App {
 
     this.io.on('connection', socket => {
 
+      console.log(`>>> Connection: ${socket.id}`);
+
       socket.on('join', (data: {username: string, room?: string}) => {
+        console.log(`>>> Join Event: ${data.username}; ${data.room}`);
         if( data.room === undefined ) {
           createRoomUseCase.execute(socket.id, data.username)
             .then(room => {
@@ -88,7 +91,8 @@ class App {
             if (!room.isEmpty) {
               socket.to(room.id).emit('room', {...room});
             }
-          });
+          })
+          .catch(err => console.log(err));
       });
 
       socket.on('disconnect', () => {
@@ -96,7 +100,8 @@ class App {
           .then(room => {
             socket.leave(room.id);
             socket.to(room.id).emit('room', {...room});
-          });
+          })
+          .catch(err => console.log(err));;
       });
 
     });

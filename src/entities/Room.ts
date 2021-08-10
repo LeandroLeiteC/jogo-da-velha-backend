@@ -11,8 +11,8 @@ export default class Room {
     winner: string;
     turn: string;
     restartVote: {
-        player1: Boolean,
-        player2: Boolean
+        player1: boolean,
+        player2: boolean
     };
 
     constructor (id: string, player: Player) {
@@ -32,19 +32,25 @@ export default class Room {
       }
     }
 
-    isFull(): Boolean {
-      return this.player1 != undefined && this.player2 != undefined
+    isFull(): boolean {
+      return this.player1 !== undefined && this.player2 !== undefined
     }
 
     leave (playerId: string) {
-      if (this.player1.id == playerId) {
-        this.player1 == undefined;
-      } else if (this.player2.id == playerId) {
+      if (this.player1.id === playerId) {
+        this.player1 = undefined;
+      }
+      
+      if (this.player2.id === playerId) {
         this.player2 = undefined;
-
       }
 
-      if (this.player1 == undefined || this.player2 == undefined) {
+      if (this.player1 === undefined) {
+        this.status = RoomStatus.WAITING_FOR_OTHER_PLAYER;
+        this.resetBoard();
+      }
+
+      if (this.player2 === undefined) {
         this.status = RoomStatus.WAITING_FOR_OTHER_PLAYER;
         this.resetBoard();
       }
@@ -62,8 +68,19 @@ export default class Room {
       }
     }
 
-    isPlayer (playerId: string): Boolean {
-      return this.player1.id == playerId || this.player2.id == playerId;
+    isPlayerConnected (playerId: string): boolean {
+      // if (this.player1 !== undefined ) {
+      //   if (this.player1.id === playerId) {
+      //     return true;
+      //   }
+      // }
+
+      // if (this.player2 !== undefined) {
+      //   if (this.player2.id === playerId) {
+      //     return true;
+      //   }
+      // }
+      return true;
     }
 
     voteToRestart (plauerId: string) {
