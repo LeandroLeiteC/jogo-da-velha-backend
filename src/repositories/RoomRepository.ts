@@ -1,25 +1,31 @@
 import Room from '../entities/Room'
-
+import { ErrorEnum } from '../enums/ErrorEnum';
+import redisGateway from '../redis/RedisGateway';
 class RoomRepository {
   private state = {
     rooms: {}
   };
 
-  public save (room: Room): Room {
-    this.state.rooms[room.id] = room;
-    return room;
+  public async save (room: Room): Promise<Room> {
+    redisGateway.set(room.id, JSON.stringify(room));
+    return this.getById(room.id);
   }
 
   public remove (id: string): void {
-    delete this.state.rooms[id];
+    redisGateway.delete(id);
   }
 
-  public getById (id: string): Room {
-    return this.state.rooms[id];
-  }
-
-  public getAll() {
-    return this.state.rooms;
+  public async getById (id: string): Promise<Room> {
+    return redisGateway.get(id)
+      .then(data => {
+        if (data === null) {
+          throw new Error(ErrorEnum.ROOM_NOT_FOUND);
+        }
+          return <Room> JSON.parse(data);
+      })
+      .catch(() => {
+        throw new Error(ErrorEnum.ROOM_NOT_FOUND);
+      });
   }
 }
 

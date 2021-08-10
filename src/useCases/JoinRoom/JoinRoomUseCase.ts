@@ -1,33 +1,34 @@
 import Player from '../../entities/Player'
 import Room from '../../entities/Room'
 import { ErrorEnum } from '../../enums/ErrorEnum';
-import { RoomStatus } from '../../enums/RoomStatus';
 import roomRepository from '../../repositories/RoomRepository'
+import roomService from '../../service/RoomService';
 
 class JoinRoomUseCase {
   async execute (roomId: string, socketId: string, username: string): Promise<Room> {
 
     if (username === undefined || username.length > 15) {
-      throw new Error(ErrorEnum.INVALID_USERNAME);
+        throw new Error(ErrorEnum.INVALID_USERNAME);
     }
+    
+    try {
+        let room = await roomRepository.getById(roomId)
+        this.validate(room, socketId);
+        roomService.joinRoom(room, new Player(socketId, username));
+        return await roomRepository.save(room);
+    } catch(err) {
+        throw new Error(err.message);
+    }
+  }
 
-    let room = roomRepository.getById(roomId);
-    if (room === undefined || !room.isPlayer(socketId)) {
+  private validate = (room: Room, socketId: string) => {
+    if (roomService.isPlayer(room, socketId)) {
       throw new Error(ErrorEnum.ROOM_NOT_FOUND);
     }
 
-    if (room.isFull()) {
+    if (roomService.isFull(room)) {
       throw new Error(ErrorEnum.ROOM_IS_FULL);
     }
-
-    room.joinRoom(new Player(socketId, username));
-    
-
-    if (room.isFull()) {
-      room.status = RoomStatus.RUNNING
-    }
-
-    return roomRepository.save(room);
   }
 }
 

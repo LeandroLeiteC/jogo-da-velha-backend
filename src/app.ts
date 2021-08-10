@@ -85,7 +85,7 @@ class App {
         leaveRoomUseCase.execute(socket['room'], socket.id)
           .then(room => {
             socket.leave(room.id);
-            if (!room.isEmpty) {
+            if (room.player1 !== undefined || room.player2 !== undefined) {
               socket.to(room.id).emit('room', {...room});
             }
           });
@@ -100,7 +100,6 @@ class App {
       });
 
     });
-
   }
 }
 

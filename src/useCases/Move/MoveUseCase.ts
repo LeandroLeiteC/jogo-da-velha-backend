@@ -2,45 +2,51 @@ import Room from '../../entities/Room'
 import { ErrorEnum } from '../../enums/ErrorEnum';
 import { RoomStatus } from '../../enums/RoomStatus';
 import roomRepository from '../../repositories/RoomRepository'
-
+import roomService from '../../service/RoomService';
 class MoveUseCase {
     async execute (roomId: string, socketId: string, move: {x: number, y: number}): Promise<Room> {
-        let room = roomRepository.getById(roomId);
-        if (room == undefined || !room.isPlayer(socketId)) {
+
+
+        try {
+            let room = await roomRepository.getById(roomId)
+            if (!roomService.isPlayer(room, socketId)) {
+                throw new Error(ErrorEnum.ROOM_NOT_FOUND);
+            }
+    
+            if (room.status !== RoomStatus.RUNNING) {
+                throw new Error(ErrorEnum.GAME_NOT_RUNNNING);
+            }
+    
+            if (!this.isMoveValid(room.board, move)) {
+                throw new Error(ErrorEnum.INVALID_MOVE);
+            }
+    
+            if (room.turn !== socketId) {
+                throw new Error(ErrorEnum.NOT_YOUR_TURN);
+            }
+            
+            try {
+                room.board[move.x][move.y] = socketId;
+            } catch(err) {
+                throw new Error(ErrorEnum.INVALID_MOVE);
+            }
+            
+    
+            if (this.win(room.board)) {
+                room.winner = socketId;
+                room.status = RoomStatus.FINISHED;
+            }
+    
+            if (this.draw(room.board)) {
+                room.status = RoomStatus.FINISHED;
+            }
+            
+            roomService.nextTurn(room);
+            
+            return await roomRepository.save(room);
+        } catch(err) {
             throw new Error(ErrorEnum.ROOM_NOT_FOUND);
         }
-
-        if (room.status !== RoomStatus.RUNNING) {
-            throw new Error(ErrorEnum.GAME_NOT_RUNNNING);
-        }
-
-        if (!this.isMoveValid(room.board, move)) {
-            throw new Error(ErrorEnum.INVALID_MOVE);
-        }
-
-        if (room.turn !== socketId) {
-            throw new Error(ErrorEnum.NOT_YOUR_TURN);
-        }
-        
-        try {
-            room.board[move.x][move.y] = socketId;
-        } catch(err) {
-            throw new Error(ErrorEnum.INVALID_MOVE);
-        }
-        
-
-        if (this.win(room.board)) {
-            room.winner = socketId;
-            room.status = RoomStatus.FINISHED;
-        }
-
-        if (this.draw(room.board)) {
-            room.status = RoomStatus.FINISHED;
-        }
-        
-        room.nextTurn();
-        
-        return roomRepository.save(room);
     }
 
     private isMoveValid (board: string[][], move: {x: number, y: number}): Boolean {
