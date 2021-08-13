@@ -6,7 +6,7 @@ import roomService from '../../service/RoomService';
 
 class JoinRoomUseCase {
   async execute (roomId: string, socketId: string, username: string): Promise<Room> {
-
+    console.log(`${socketId} is trying to join room ${roomId}`);
     if (username === undefined || username.length > 15) {
         throw new Error(ErrorEnum.INVALID_USERNAME);
     }
@@ -15,6 +15,7 @@ class JoinRoomUseCase {
         let room = await roomRepository.getById(roomId)
         this.validate(room, socketId);
         roomService.joinRoom(room, new Player(socketId, username));
+        console.log(`${socketId} joined on room ${roomId}`);
         return await roomRepository.save(room);
     } catch(err) {
         throw new Error(err.message);

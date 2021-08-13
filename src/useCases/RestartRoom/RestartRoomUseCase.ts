@@ -6,6 +6,7 @@ import roomService from '../../service/RoomService';
 class RestartRoomUseCase {
     async execute (roomId: string, socketId: string, vote: Boolean): Promise<Room> {
         try {
+            console.log(`${socketId} vote to restart on room ${roomId}`);
             let room = await roomRepository.getById(roomId)
 
             if (!roomService.isPlayer(room, socketId)) {

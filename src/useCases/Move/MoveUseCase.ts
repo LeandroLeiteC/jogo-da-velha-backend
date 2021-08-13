@@ -5,9 +5,8 @@ import roomRepository from '../../repositories/RoomRepository'
 import roomService from '../../service/RoomService';
 class MoveUseCase {
     async execute (roomId: string, socketId: string, move: {x: number, y: number}): Promise<Room> {
-
-
         try {
+            console.log(`${socketId} is trying to make a move on room ${roomId}`);
             let room = await roomRepository.getById(roomId)
             if (!roomService.isPlayer(room, socketId)) {
                 throw new Error(ErrorEnum.ROOM_NOT_FOUND);
@@ -43,6 +42,7 @@ class MoveUseCase {
             
             roomService.nextTurn(room);
             
+            console.log(`${socketId} make a move on room ${roomId}`);
             return await roomRepository.save(room);
         } catch(err) {
             throw new Error(ErrorEnum.ROOM_NOT_FOUND);

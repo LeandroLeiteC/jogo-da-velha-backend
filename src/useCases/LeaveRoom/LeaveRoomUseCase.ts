@@ -5,6 +5,7 @@ import roomService from '../../service/RoomService';
 class LeaveRoomUseCase {
     async execute (roomId: string, socketId: string): Promise<Room> {
         try {
+            console.log(`${socketId} is leaving room ${roomId}`);
             let room = await roomRepository.getById(roomId)
             if (!roomService.isPlayer(room, socketId)) {
                 throw new Error(ErrorEnum.ROOM_NOT_FOUND);
