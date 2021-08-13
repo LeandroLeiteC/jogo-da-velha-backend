@@ -24,7 +24,7 @@ class RestartRoomUseCase {
         
             return await roomRepository.save(room);
         } catch(err) {
-            throw new Error(ErrorEnum.ROOM_NOT_FOUND);
+            throw new Error(err.message);
         }
     }
 }

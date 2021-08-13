@@ -45,7 +45,7 @@ class MoveUseCase {
             console.log(`${socketId} make a move on room ${roomId}`);
             return await roomRepository.save(room);
         } catch(err) {
-            throw new Error(ErrorEnum.ROOM_NOT_FOUND);
+            throw new Error(err.message);
         }
     }
 

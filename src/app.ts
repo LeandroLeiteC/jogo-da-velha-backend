@@ -89,7 +89,8 @@ class App {
             if (room.player1 !== undefined || room.player2 !== undefined) {
               socket.to(room.id).emit('room', {...room});
             }
-          });
+          })
+          .catch(err => console.log(err));
       });
 
       socket.on('disconnect', () => {
@@ -97,7 +98,8 @@ class App {
           .then(room => {
             socket.leave(room.id);
             socket.to(room.id).emit('room', {...room});
-          });
+          })
+          .catch(err => console.log(err));;
       });
 
     });
