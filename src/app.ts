@@ -1,12 +1,13 @@
 import express from 'express';
 import routes from './routes';
 import http from 'http';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import createRoomUseCase from './useCases/CreateRoom/CreateRoomUseCase';
 import joinRoomUseCase from './useCases/JoinRoom/JoinRoomUseCase';
 import moveUseCase from './useCases/Move/MoveUseCase';
 import leaveRoomUseCase from './useCases/LeaveRoom/LeaveRoomUseCase';
 import restartRoomUseCase from './useCases/RestartRoom/RestartRoomUseCase';
+import { GameSocket } from './entities/GameSocket';
 
 class App {
   public express: express.Application;
@@ -40,20 +41,20 @@ class App {
 
   private listen (): void {
 
-    this.io.on('connection', socket => {
+    this.io.on('connection', (socket: GameSocket)  => {
 
       socket.on('join', (data: {username: string, room?: string}) => {
         if( data.room === undefined ) {
           createRoomUseCase.execute(socket.id, data.username)
             .then(room => {
-              socket['room'] = room.id;
+              socket.room = room.id;
               socket.join(room.id);
               this.io.to(room.id).emit('room', {...room});
           });
         } else {
           joinRoomUseCase.execute(data.room, socket.id, data.username)
             .then(room => {
-              socket['room'] = room.id;
+              socket.room = room.id;
               socket.join(room.id);
               this.io.to(room.id).emit('room', {...room});
             })
@@ -64,7 +65,7 @@ class App {
       });
 
       socket.on('move', (data: {x: number, y: number}) => {
-        moveUseCase.execute(socket['room'], socket.id, data)
+        moveUseCase.execute(socket.room, socket.id, data)
           .then(room => {
             this.io.sockets.to(room.id).emit('room', {...room});
           }).catch(err => {
@@ -73,7 +74,7 @@ class App {
       });
 
       socket.on('restart', (data: {wantTo: Boolean}) => {
-        restartRoomUseCase.execute(socket['room'], socket.id, data.wantTo)
+        restartRoomUseCase.execute(socket.room, socket.id, data.wantTo)
           .then(room => {
             this.io.sockets.to(room.id).emit('room', {...room});
           }).catch(err => {
@@ -82,7 +83,7 @@ class App {
       });
 
       socket.on('leave', () => {
-        leaveRoomUseCase.execute(socket['room'], socket.id)
+        leaveRoomUseCase.execute(socket.room, socket.id)
           .then(room => {
             socket.leave(room.id);
             if (room.player1 !== undefined || room.player2 !== undefined) {
@@ -92,7 +93,7 @@ class App {
       });
 
       socket.on('disconnect', () => {
-        leaveRoomUseCase.execute(socket['room'], socket.id)
+        leaveRoomUseCase.execute(socket.room, socket.id)
           .then(room => {
             socket.leave(room.id);
             socket.to(room.id).emit('room', {...room});
